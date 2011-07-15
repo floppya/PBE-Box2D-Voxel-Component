@@ -1,0 +1,53 @@
+A PushButton Engine component that creates Box2D bodies from an image source.
+
+The goal is to create an efficient Box2D body from the alpha channel of a 
+supplied SpriteSheetComponent. Eventually, I'd also like to add the ability to 
+remove voxels and mask the rendered sprite accordingly. 
+
+This component is a subclass of Box2DSpatialComponent, so you can use it much
+in the same way. It's also a work in progress so it barely works correctly
+and is missing all the awesome features that you want.
+
+Currently it uses a crap, invented-here, half-finished implementation of
+the marching squares algorithm to generate a bunch of PolygonCollisionShapes
+which are then added to the collisionShapes of the Box2DSpatialCompenent
+superclass. At the moment, there is no attempt to coalesce the polygons which
+would probably provide better performance.
+
+It adds a couple of extra parameters, only one of which is required:
+
+* voxelSource (required): This should be a reference to a SpriteSheetComponent.
+* numCellsX / Y: These adjust the resolution of the voxel volume.
+* alphaThreshold : The alpha value at which the pixels of your source image
+  are considered solid.
+
+Example template:
+
+<template name="PhysVoxel">
+  <component type="com.snakedickgames.pbe.components.box2d.Box2DVoxelSpatialComponent" name="Spatial">
+    <collidesContinuously>true</collidesContinuously>
+    <voxelSource componentReference="BigPSpriteSheet"/>
+    <canMove>true</canMove>
+    <canRotate>true</canRotate>
+    <collidesWithTypes childType="String">
+      <_0>Actor</_0>
+      <_1>Platform</_1>
+      <_2>Prop</_2>
+    </collidesWithTypes>
+    <collisionType childType="String">
+      <_0>Prop</_0>
+    </collisionType>
+    <spatialManager componentReference="SpatialDB"/>
+    <size type="">
+      <x>128</x>
+      <y>128</y>
+    </size>
+  </component>
+  <component type="com.pblabs.rendering2D.SpriteSheetRenderer" name="Render">
+    <positionProperty>@Spatial.position</positionProperty>
+    <rotationProperty>@Spatial.rotation</rotationProperty>
+    <sizeProperty>@Spatial.size</sizeProperty>
+    <spriteSheet componentReference="BigPSpriteSheet"/>
+    <scene componentReference="Scene"/>
+  </component>
+</template>
